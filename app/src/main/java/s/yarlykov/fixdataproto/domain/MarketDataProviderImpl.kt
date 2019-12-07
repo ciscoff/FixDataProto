@@ -14,7 +14,7 @@ import io.reactivex.subjects.BehaviorSubject
 class MarketDataProviderImpl(
     private val name: String,
     repo: MarketDataRepo,
-    capacity: Int = 10
+    capacity: Int = 6
 ) : MarketDataProvider {
 
     // Массив для хранения котировок
@@ -38,7 +38,7 @@ class MarketDataProviderImpl(
         override fun onNext(fixData: MarketData) {
             head.marketData = fixData
             head = head.next!!
-            aggregatedDataStream.onNext(collectDescend())
+            aggregatedDataStream.onNext(collectAscent())
         }
 
         override fun onError(e: Throwable) {
@@ -78,7 +78,8 @@ class MarketDataProviderImpl(
         }
 
     // Список котировок по убывающей дате
-    private fun collectDescend(): List<MarketData> {
+    private fun collectDescent(): List<MarketData> {
+
         val list = mutableListOf<MarketData>()
 
         var item = head
@@ -87,6 +88,21 @@ class MarketDataProviderImpl(
         do {
             list.add(item.prev!!.marketData.copy())
             item = item.prev!!
+        } while (item.id != id)
+
+        return list
+    }
+
+    // Список котировок по возрастающей дате
+    private fun collectAscent() : List<MarketData> {
+        val list = mutableListOf<MarketData>()
+
+        var item = head
+        val id = head.id
+
+        do {
+            list.add(item.marketData.copy())
+            item = item.next!!
         } while (item.id != id)
 
         return list

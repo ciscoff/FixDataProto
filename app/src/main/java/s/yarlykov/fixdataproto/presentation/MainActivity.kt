@@ -8,6 +8,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import s.yarlykov.fixdataproto.R
 import s.yarlykov.fixdataproto.application.TradingApp
 import s.yarlykov.fixdataproto.domain.MarketData
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,7 +44,6 @@ class MainActivity : AppCompatActivity() {
                     tvBar.text = message
                 }
         )
-
     }
 
     override fun onPause() {
@@ -50,14 +51,18 @@ class MainActivity : AppCompatActivity() {
         disposable.clear()
     }
 
-    fun List<MarketData>.print() : String {
+    private fun List<MarketData>.print() : String {
+
+        val sdf = SimpleDateFormat("ss", Locale.getDefault())
+
 
         val li = mutableListOf<String>()
-
         this.forEach {md ->
-            li.add(md.value.toString())
+            if(md.value > 0) {
+                val s = "${"%02d".format(md.value)}: ${sdf.format(md.time)}s"
+                li.add(s)
+            }
         }
-
         return li.joinToString()
     }
 }
