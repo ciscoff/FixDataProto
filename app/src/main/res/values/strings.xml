@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">FixDataProto</string>
+    <string name="app_name">MarketDataProto</string>
+    <string name="foo">foo</string>
+    <string name="bar">bar</string>
+
 </resources>
