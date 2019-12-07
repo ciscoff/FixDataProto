@@ -1,6 +1,9 @@
-package s.yarlykov.fixdataproto.domain
+package s.yarlykov.fixdataproto.data
 
 import io.reactivex.Observable
+import s.yarlykov.fixdataproto.domain.Granularity
+import s.yarlykov.fixdataproto.domain.MarketData
+import s.yarlykov.fixdataproto.domain.MarketDataProvider
 
 class MarketDataHub(providers: List<MarketDataProvider>) {
 

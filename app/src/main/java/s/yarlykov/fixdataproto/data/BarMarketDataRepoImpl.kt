@@ -12,6 +12,7 @@ private const val PRICE_MIN = 50
 private const val PRICE_MAX = 70
 
 class BarMarketDataRepoImpl : MarketDataRepo {
+
     override fun connect(): Observable<MarketData> =
         Observable
             .interval(1, TimeUnit.SECONDS, Schedulers.newThread())
