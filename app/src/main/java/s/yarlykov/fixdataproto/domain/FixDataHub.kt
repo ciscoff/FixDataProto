@@ -11,7 +11,7 @@ import io.reactivex.subjects.BehaviorSubject
  * в противоположном (от свежих к старым)
  */
 
-class FixDataHub(rawDataStream: Observable<FixData>, capacity: Int = 20) {
+class FixDataHub(rawDataStream: Observable<FixData>, capacity: Int = 100) {
 
     // Массив для хранения котировок
     private var storage: Array<Link> = Array(capacity) { index ->
@@ -54,7 +54,7 @@ class FixDataHub(rawDataStream: Observable<FixData>, capacity: Int = 20) {
                 next.value.next = storage[next.index + 1]
             }
             if (next.index > 0) {
-                storage[next.index].prev = next.value
+                storage[next.index].prev = storage[next.index - 1]
             }
         }
 
@@ -74,12 +74,14 @@ class FixDataHub(rawDataStream: Observable<FixData>, capacity: Int = 20) {
         val id = head.id
 
         do {
-            list.add(item.fixData)
+            list.add(item.prev!!.fixData.copy())
             item = item.prev!!
         } while (item.id != id)
 
         return list
     }
 
-    data class Link(val id: Int, var fixData: FixData, var next: Link?, var prev: Link?)
+    data class Link(val id: Int, var fixData: FixData, var next: Link?, var prev: Link?) {
+        override fun toString() = "id=$id, coupled=${next != null && prev != null}"
+    }
 }
