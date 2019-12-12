@@ -11,16 +11,17 @@ import kotlin.random.Random
 const val FOO_PRICE_MIN = 1
 const val FOO_PRICE_MAX = 20
 
-class FooMarketDataRepoImpl : MarketDataRepo {
+class FooMarketDataRepoImpl : MarketDataRepo() {
 
     override fun connect(): Observable<MarketData> =
         Observable
             .interval(1, TimeUnit.SECONDS, Schedulers.newThread())
             .map {
-                MarketData(Random.nextInt(FOO_PRICE_MIN, FOO_PRICE_MAX))
+                MarketData(Random.nextInt(FOO_PRICE_MIN, FOO_PRICE_MAX),
+                    timeLineHandler.getMarker(System.currentTimeMillis()))
             }
             .doOnNext {
-                logIt("${it.value} in ${it.time}")
+                logIt("${it.value} in ${it.marker.time}")
             }
             .publish()
             .refCount()

@@ -1,7 +1,11 @@
 package s.yarlykov.fixdataproto.domain
 
 import io.reactivex.Observable
+import s.yarlykov.fixdataproto.domain.time.TimeLineHandler
 
-interface MarketDataRepo {
-    fun connect() : Observable<MarketData>
+abstract class MarketDataRepo {
+
+    val timeLineHandler = TimeLineHandler()
+
+    abstract fun connect(): Observable<MarketData>
 }

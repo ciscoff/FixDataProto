@@ -1,4 +1,4 @@
-package s.yarlykov.fixdataproto.presentation.graph
+package s.yarlykov.fixdataproto.presentation.chart
 
 import android.content.Context
 import android.graphics.*
@@ -8,6 +8,7 @@ import androidx.core.content.res.ResourcesCompat
 import s.yarlykov.fixdataproto.R
 import s.yarlykov.fixdataproto.domain.ChartOptions
 import s.yarlykov.fixdataproto.domain.MarketData
+import s.yarlykov.fixdataproto.domain.time.TimeEvent
 
 class LineChartView @JvmOverloads constructor(
     context: Context,
@@ -71,11 +72,21 @@ class LineChartView @JvmOverloads constructor(
         val path = Path()
         path.moveTo(0f, 0f)
 
+        cacheCanvas.drawColor(colorBackground)
+
         data.withIndex().forEach { d ->
-            path.lineTo((xStep * d.index).toFloat(), height - ((d.value.value - yBase) * yStep).toFloat())
+
+            val x = (xStep * d.index).toFloat()
+            val y = height - ((d.value.value - yBase) * yStep).toFloat()
+
+            path.lineTo(x, y)
+
+            if(d.value.marker.timeEvent == TimeEvent.MINUTE) {
+                cacheCanvas.drawText("m", x, y, paintAxis)
+                System.out.println("APP_TAG: minute")
+            }
         }
 
-        cacheCanvas.drawColor(colorBackground)
         cacheCanvas.drawPath(path, paintAxis)
 
         path.reset()

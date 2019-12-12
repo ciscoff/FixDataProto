@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         val li = mutableListOf<String>()
         this.forEach {md ->
             if(md.value > 0) {
-                val s = "${"%02d".format(md.value)}: ${sdf.format(md.time)}s"
+                val s = "${"%02d".format(md.value)}: ${sdf.format(md.marker.time)}s"
                 li.add(s)
             }
         }

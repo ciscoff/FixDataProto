@@ -1,4 +1,4 @@
-package s.yarlykov.fixdataproto.presentation.graph
+package s.yarlykov.fixdataproto.presentation.chart
 
 import s.yarlykov.fixdataproto.domain.ChartOptions
 import s.yarlykov.fixdataproto.domain.MarketData

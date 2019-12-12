@@ -15,9 +15,11 @@ class TradingApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        val capacity = 30
+
         val list = listOf<MarketDataProvider>(
-            MarketDataProviderImpl(getString(R.string.foo), FooMarketDataRepoImpl()),
-            MarketDataProviderImpl(getString(R.string.bar), BarMarketDataRepoImpl())
+            MarketDataProviderImpl(getString(R.string.foo), FooMarketDataRepoImpl(), capacity),
+            MarketDataProviderImpl(getString(R.string.bar), BarMarketDataRepoImpl(), capacity)
         )
 
         marketDataHub = MarketDataHub(list)
