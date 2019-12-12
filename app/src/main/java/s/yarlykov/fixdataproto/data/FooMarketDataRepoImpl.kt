@@ -8,8 +8,8 @@ import s.yarlykov.fixdataproto.logIt
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-private const val PRICE_MIN = 1
-private const val PRICE_MAX = 20
+const val FOO_PRICE_MIN = 1
+const val FOO_PRICE_MAX = 20
 
 class FooMarketDataRepoImpl : MarketDataRepo {
 
@@ -17,7 +17,7 @@ class FooMarketDataRepoImpl : MarketDataRepo {
         Observable
             .interval(1, TimeUnit.SECONDS, Schedulers.newThread())
             .map {
-                MarketData(Random.nextInt(PRICE_MIN, PRICE_MAX))
+                MarketData(Random.nextInt(FOO_PRICE_MIN, FOO_PRICE_MAX))
             }
             .doOnNext {
                 logIt("${it.value} in ${it.time}")

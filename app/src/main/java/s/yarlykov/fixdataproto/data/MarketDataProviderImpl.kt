@@ -1,9 +1,13 @@
-package s.yarlykov.fixdataproto.domain
+package s.yarlykov.fixdataproto.data
 
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
+import s.yarlykov.fixdataproto.domain.Granularity
+import s.yarlykov.fixdataproto.domain.MarketData
+import s.yarlykov.fixdataproto.domain.MarketDataProvider
+import s.yarlykov.fixdataproto.domain.MarketDataRepo
 
 /**
  * Класс реализует двусвязный список на массиве. Массив удобен для первичной инииализации.
@@ -38,7 +42,7 @@ class MarketDataProviderImpl(
         override fun onNext(fixData: MarketData) {
             head.marketData = fixData
             head = head.next!!
-            aggregatedDataStream.onNext(collectAscent())
+            aggregatedDataStream.onNext(collectDescent())
         }
 
         override fun onError(e: Throwable) {

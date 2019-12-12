@@ -6,12 +6,14 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import s.yarlykov.fixdataproto.R
+import s.yarlykov.fixdataproto.domain.ChartOptions
+import s.yarlykov.fixdataproto.domain.MarketData
 
-class GraphView @JvmOverloads constructor(
+class LineChartView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
+) : View(context, attrs, defStyleAttr), ChartView {
     /**
      * Все рисование делаем в отдельной битмапе. Потом в onDraw()
      * копируем её контент в битмапу нашей View.
@@ -20,6 +22,7 @@ class GraphView @JvmOverloads constructor(
      */
     private lateinit var cacheBitmap: Bitmap
     private lateinit var cacheCanvas: Canvas
+    private lateinit var options: ChartOptions
     private var pathAxis = Path()
 
     private val colorBackground = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
@@ -48,7 +51,42 @@ class GraphView @JvmOverloads constructor(
         cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         cacheCanvas = Canvas(cacheBitmap)
         cacheCanvas.drawColor(colorBackground)
-        cacheCanvas.drawPath(pathAxis, paintAxis)
+//        cacheCanvas.drawPath(pathAxis, paintAxis)
+
+        if (::options.isInitialized) {
+            decorateChart()
+        }
+    }
+
+    override fun setChartOptions(options: ChartOptions) {
+        this.options = options
+    }
+
+    override fun update(data: List<MarketData>) {
+
+        val xStep = width / data.size
+        val yStep = height / (options.max - options.min)
+        val yBase = options.min
+
+        val path = Path()
+        path.moveTo(0f, 0f)
+
+        data.withIndex().forEach { d ->
+            path.lineTo((xStep * d.index).toFloat(), height - ((d.value.value - yBase) * yStep).toFloat())
+        }
+
+        cacheCanvas.drawColor(colorBackground)
+        cacheCanvas.drawPath(path, paintAxis)
+
+        path.reset()
+        invalidate()
+    }
+
+    /**
+     * Надписи вдоль осей координат
+     */
+    private fun decorateChart() {
+
     }
 
     private fun createAxisPath(w: Int, h: Int): Path {

@@ -6,7 +6,7 @@ import s.yarlykov.fixdataproto.data.BarMarketDataRepoImpl
 import s.yarlykov.fixdataproto.data.FooMarketDataRepoImpl
 import s.yarlykov.fixdataproto.data.MarketDataHub
 import s.yarlykov.fixdataproto.domain.MarketDataProvider
-import s.yarlykov.fixdataproto.domain.MarketDataProviderImpl
+import s.yarlykov.fixdataproto.data.MarketDataProviderImpl
 
 class TradingApp : Application() {
 

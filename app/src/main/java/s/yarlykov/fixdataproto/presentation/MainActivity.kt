@@ -7,6 +7,9 @@ import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_main.*
 import s.yarlykov.fixdataproto.R
 import s.yarlykov.fixdataproto.application.TradingApp
+import s.yarlykov.fixdataproto.data.FOO_PRICE_MAX
+import s.yarlykov.fixdataproto.data.FOO_PRICE_MIN
+import s.yarlykov.fixdataproto.domain.ChartOptions
 import s.yarlykov.fixdataproto.domain.MarketData
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,6 +28,14 @@ class MainActivity : AppCompatActivity() {
 
         val hub = (application as TradingApp).getHub()
 
+        graph.setChartOptions(ChartOptions(
+            getString(R.string.foo),
+            "x",
+            "y",
+            FOO_PRICE_MIN,
+            FOO_PRICE_MAX
+        ))
+
         disposable.add(
             hub
                 .marketDataStream(getString(R.string.foo))
@@ -32,6 +43,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribe {
                     val message = it.print()
                     tvFoo.text = message
+                    graph.update(it)
                 }
         )
 
@@ -54,7 +66,6 @@ class MainActivity : AppCompatActivity() {
     private fun List<MarketData>.print() : String {
 
         val sdf = SimpleDateFormat("ss", Locale.getDefault())
-
 
         val li = mutableListOf<String>()
         this.forEach {md ->
