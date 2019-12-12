@@ -15,6 +15,7 @@ class LineChartView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr), ChartView {
+
     /**
      * Все рисование делаем в отдельной битмапе. Потом в onDraw()
      * копируем её контент в битмапу нашей View.
@@ -26,7 +27,26 @@ class LineChartView @JvmOverloads constructor(
     private lateinit var options: ChartOptions
     private var pathAxis = Path()
 
-    private val colorBackground = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+    /**
+     * Paddind'и для области рисования и прямоугольник для рисования, который
+     * содержит координаты (L,T R,B)
+     */
+    private var chartPaddings = Rect()
+    private var chartArea = Rect()
+
+    /**
+     * Цвета рамки и области рисования
+     */
+    private val colorChartFrame = ResourcesCompat.getColor(resources, R.color.colorFrame, null)
+    private val colorChartArea = ResourcesCompat.getColor(resources, R.color.colorBackground, null)
+
+    /**
+     * Кисти
+     */
+    private val paintChartArea = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = colorChartArea
+    }
 
     // Кисть для осей координат и надписей на них
     private val paintAxis = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -47,11 +67,29 @@ class LineChartView @JvmOverloads constructor(
         // Чтобы не было утечки памяти, удалить старую битмапу перед созданием новой
         if (::cacheBitmap.isInitialized) cacheBitmap.recycle()
 
-        pathAxis = createAxisPath(w, h)
+        // Пересчитать отступы области рисования
+        with(chartPaddings) {
+            left = w / 10
+            top = h / 20
+            bottom = h / 10
+            right = w / 20
+        }
 
-        cacheBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        // Пересчитать координаты области рисования
+        with(chartArea) {
+            left = chartPaddings.left
+            top = chartPaddings.top
+            bottom = h - chartPaddings.bottom
+            right = w - chartPaddings.right
+        }
+
+//        pathAxis = createAxisPath(w, h)
+
+        cacheBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         cacheCanvas = Canvas(cacheBitmap)
-        cacheCanvas.drawColor(colorBackground)
+
+        cacheCanvas.drawColor(colorChartFrame)
+        cacheCanvas.drawRect(chartArea, paintChartArea)
 //        cacheCanvas.drawPath(pathAxis, paintAxis)
 
         if (::options.isInitialized) {
@@ -65,28 +103,42 @@ class LineChartView @JvmOverloads constructor(
 
     override fun update(data: List<MarketData>) {
 
-        val xStep = width / data.size
-        val yStep = height / (options.max - options.min)
+        val w = chartArea.width()
+        val h = chartArea.height()
+        val shiftX = chartArea.left.toFloat()
+        val shiftY = chartArea.top.toFloat()
+
+        val xStep = w / data.size
+        val yStep = h / (options.max - options.min)
         val yBase = options.min
 
         val path = Path()
-        path.moveTo(0f, 0f)
+        cacheCanvas.drawColor(colorChartArea)
 
-        cacheCanvas.drawColor(colorBackground)
+        var xPrev = 0f
+        var yPrev = 0f
 
         data.withIndex().forEach { d ->
 
-            val x = (xStep * d.index).toFloat()
-            val y = height - ((d.value.value - yBase) * yStep).toFloat()
+            val x = (xStep * d.index).toFloat() + shiftX
+            val y = h - ((d.value.value - yBase) * yStep).toFloat() + shiftY
 
-            path.lineTo(x, y)
+            if(d.index != 0) {
+                path.quadTo(x, y, (x + xPrev)/2, (y + yPrev)/2)
 
-            if(d.value.marker.timeEvent == TimeEvent.MINUTE) {
-                cacheCanvas.drawText("m", x, y, paintAxis)
-                System.out.println("APP_TAG: minute")
+                if (d.value.marker.timeEvent == TimeEvent.MINUTE) {
+                    cacheCanvas.drawText("m", x, y, paintAxis)
+                }
+            } else {
+                path.moveTo(x, y)
             }
+
+            xPrev = x
+            yPrev = y
         }
 
+        cacheCanvas.drawColor(colorChartFrame)
+        cacheCanvas.drawRect(chartArea, paintChartArea)
         cacheCanvas.drawPath(path, paintAxis)
 
         path.reset()
