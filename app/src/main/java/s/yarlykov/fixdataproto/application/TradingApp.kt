@@ -4,10 +4,9 @@ import android.app.Application
 import s.yarlykov.fixdataproto.R
 import s.yarlykov.fixdataproto.data.BarMarketDataRepoImpl
 import s.yarlykov.fixdataproto.data.FooMarketDataRepoImpl
-import s.yarlykov.fixdataproto.domain.MarketDataHub
+import s.yarlykov.fixdataproto.data.MarketDataHub
 import s.yarlykov.fixdataproto.domain.MarketDataProvider
-import s.yarlykov.fixdataproto.domain.MarketDataProviderImpl
-import s.yarlykov.fixdataproto.domain.MarketDataRepo
+import s.yarlykov.fixdataproto.data.MarketDataProviderImpl
 
 class TradingApp : Application() {
 
@@ -16,9 +15,11 @@ class TradingApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        val capacity = 30
+
         val list = listOf<MarketDataProvider>(
-            MarketDataProviderImpl(getString(R.string.foo), FooMarketDataRepoImpl()),
-            MarketDataProviderImpl(getString(R.string.bar), BarMarketDataRepoImpl())
+            MarketDataProviderImpl(getString(R.string.foo), FooMarketDataRepoImpl(), capacity),
+            MarketDataProviderImpl(getString(R.string.bar), BarMarketDataRepoImpl(), capacity)
         )
 
         marketDataHub = MarketDataHub(list)

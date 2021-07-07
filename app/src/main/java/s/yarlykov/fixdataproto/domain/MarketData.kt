@@ -1,3 +1,8 @@
 package s.yarlykov.fixdataproto.domain
 
-data class MarketData(val value : Int, val time : Long = System.currentTimeMillis())
+import s.yarlykov.fixdataproto.domain.time.TimeLineMarker
+
+data class MarketData(
+    val value: Int,
+    val marker: TimeLineMarker
+)

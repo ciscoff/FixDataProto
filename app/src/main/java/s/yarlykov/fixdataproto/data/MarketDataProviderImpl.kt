@@ -1,9 +1,15 @@
-package s.yarlykov.fixdataproto.domain
+package s.yarlykov.fixdataproto.data
 
 import io.reactivex.Observable
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.subjects.BehaviorSubject
+import s.yarlykov.fixdataproto.domain.Granularity
+import s.yarlykov.fixdataproto.domain.MarketData
+import s.yarlykov.fixdataproto.domain.MarketDataProvider
+import s.yarlykov.fixdataproto.domain.MarketDataRepo
+import s.yarlykov.fixdataproto.domain.time.TimeEvent
+import s.yarlykov.fixdataproto.domain.time.TimeLineMarker
 
 /**
  * Класс реализует двусвязный список на массиве. Массив удобен для первичной инииализации.
@@ -19,7 +25,12 @@ class MarketDataProviderImpl(
 
     // Массив для хранения котировок
     private var history: Array<Link> = Array(capacity) { index ->
-        Link(index, MarketData(0), null, null)
+        Link(
+            index,
+            MarketData(0, TimeLineMarker(0, TimeEvent.SECOND)),
+            null,
+            null
+        )
     }
 
     // Этот указатель будет передвигаться по кругу и указывать
@@ -38,7 +49,7 @@ class MarketDataProviderImpl(
         override fun onNext(fixData: MarketData) {
             head.marketData = fixData
             head = head.next!!
-            aggregatedDataStream.onNext(collectAscent())
+            aggregatedDataStream.onNext(headIsPastTailIsNow())
         }
 
         override fun onError(e: Throwable) {
@@ -78,7 +89,7 @@ class MarketDataProviderImpl(
         }
 
     // Список котировок по убывающей дате
-    private fun collectDescent(): List<MarketData> {
+    private fun headIsNowTailIsPast(): List<MarketData> {
 
         val list = mutableListOf<MarketData>()
 
@@ -94,7 +105,7 @@ class MarketDataProviderImpl(
     }
 
     // Список котировок по возрастающей дате
-    private fun collectAscent() : List<MarketData> {
+    private fun headIsPastTailIsNow(): List<MarketData> {
         val list = mutableListOf<MarketData>()
 
         var item = head
